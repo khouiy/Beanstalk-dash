@@ -1,1 +1,46 @@
 name: CI/CD-Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        description: 'Env'
+        required: true
+        options:
+          - development
+          - qualification
+          - production
+
+permissions:
+  contents: read
+
+env:
+  AWS_VERSION: 2.2.9
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.env }}
+    steps: 
+      - name: Git clone on our repo
+        uses: actions/checkout@v3
+      - name: Create zip deployment package
+        run: zip -r ${{ vars.DEPLOY_PACKAGE_NAME }}-${{ env.AWS_VERSION }}.zip ./ -x *.git*
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION_NAME }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-owner-role
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true 
+      
+      - name: Copying file to S3
+        run: aws s3 cp --sse AES256 ${{ vars.DEPLOY_PACKAGE_NAME }}-${{ env.AWS_VERSION }}.zip s3://${{ vars.EB_S3_BUCKET_NAME }}/
+
+      - name: Print nice message on success finish
+        run: echo "CI part finished successfuly"
