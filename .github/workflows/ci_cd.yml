@@ -67,6 +67,7 @@ jobs:
           --application-name ${{ vars.EB_APPLICATION_NAME }} \
           --source-bundle S3Bucket="${{ vars.EB_S3_BUCKET_NAME }}",S3Key="${{ vars.DEPLOY_PACKAGE_NAME }}-${{ env.AWS_VERSION }}.zip" \
           --version-label "${{ env.AWS_VERSION }}"
+          --auto-create-application true
       - name: Deploy new app
         run: aws elasticbeanstalk update-environment --environment-name ${{ vars.EB_ENVIRONMENT_NAME }} --version-label "${{ env.AWS_VERSION }}"
         
