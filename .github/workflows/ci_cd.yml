@@ -57,10 +57,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION_NAME }}
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/platform/ALZP-WL-Owner
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-owner-role
           role-duration-seconds: 3600
           role-skip-session-tagging: true 
-          
+
       - name: Create new EBL app ver
         run: |
           aws elasticbeanstalk create-application-version \
